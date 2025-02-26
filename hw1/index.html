@@ -39,7 +39,7 @@
 		Link to GitHub repository: (TODO) <a href="https://github.com/cal-cs184-student/sp25-hw1-sigh.git">https://github.com/cal-cs184-student/sp25-hw1-sigh.git</a>
 
 		<figure>
-			<img src="images/image1.png" alt="Lion" style="width:50%"/>
+			<img src="task1ss.png" style="width:50%"/>
 			<figcaption>You can add images with captions!</figcaption>
 		</figure>
 
@@ -52,6 +52,11 @@
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
 		I first find the smallest box that fully contains the triangle, calculating the min and max x and y values from the vertices of the triangles. This allows me to only check the pixels within the rectangle instead of the whole frambuffer. I then make and use an edge function to check if the points are inside or outside the triangle. To make sure the winding order doesn't matter, if the vertices of the triangle give negative values, two of the vertices are swapped so the orientation is correct. Then, to see if each pixel in the bounding box has to be filled, I check to see if the sample point at its center is inside the triangle by checking that edge function is non negative at that point for all three edges of the triangle. I also use extra checks for the edge cases where a pixel if a pixel is on the edge the function only is positive sometimes to make sure it is always correctly filling the edges. If the point is inside the triangle, it is filled. This algorithm only checks the pixels of the bounding box, so it as efficient as checking each pixel in the bounding box because they are the same thing.
+		<figure>
+			<img src="task1ss.png" style="width:50%"/>
+			<figcaption>basic rasterized triangles with pixel inspector</figcaption>
+		</figure>
+
 
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
