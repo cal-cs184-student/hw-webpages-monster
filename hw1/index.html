@@ -39,7 +39,7 @@
 		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
 
 		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
+			<img src="images/image1.png" alt="Lion" style="width:50%"/>
 			<figcaption>You can add images with captions!</figcaption>
 		</figure>
 
@@ -51,28 +51,28 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I first find the smallest box that fully contains the triangle, calculating the min and max x and y values from the vertices of the triangles. This allows me to only check the pixels within the rectangle instead of the whole frambuffer. I then make and use an edge function to check if the points are inside or outside the triangle. To make sure the winding order doesn't matter, if the vertices of the triangle give negative values, two of the vertices are swapped so the orientation is correct. Then, to see if each pixel in the bounding box has to be filled, I check to see if the sample point at its center is inside the triangle by checking that edge function is non negative at that point for all three edges of the triangle. I also use extra checks for the edge cases where a pixel if a pixel is on the edge the function only is positive sometimes to make sure it is always correctly filling the edges. If the point is inside the triangle, it is filled. This algorithm only checks the pixels of the bounding box, so it as efficient as checking each pixel in the bounding box because they are the same thing.
 
 		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
+				  <img src="images/image1.png" width="400px"/>
 				  <figcaption>Caption goes here.</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
+				  <img src="images/image2.png" width="400px"/>
 				  <figcaption>Caption goes here.</figcaption>
 				</td>
 			  </tr>
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
+				  <img src="images/image3.png" width="400px"/>
 				  <figcaption>Caption goes here.</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
+				  <img src="images/image4.png" width="400px"/>
 				  <figcaption>Caption goes here.</figcaption>
 				</td>
 			  </tr>
@@ -80,19 +80,19 @@
 		</div>
 		
 		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		In order to implement the supersampling, I expanded the sample_buffer data structure to store multiple samples per pixel. First, I used set_sample_rate and set_framebuffer_target to resize the sample buffer to accomodate the correct sample rate, with the buffer scaling by height x width x sample rate. Then, in rasterize_triangle, I made an evenly spaced grid of sample points within each pixel based on the sample rate and performed the edge function on each sample to determine whether or not it was in the triangle so that there is a higher resolution image of the triangle in the sample buffer. Using this method, I see what fraction of a pixel is inside of the triangle, and can then use resolve_framebuffer to average the samples of each pixel to get the final pixel color. I modified the buffer and updated the memory management in set_sample_rate, set_framebuffer_target, and clear_buffers to store more samples per pixel, created a uniform grid of samples in each pixel with loops to process each sample, updated fill_pixel to fill all samples with the same color, and put averging into the resolve step so that it can turn multiple samples into one final color.
 
 		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I didn't change the color of my block guy, but I shifted his arms slightly closer together and reoriented them to look like he is flexing his muscles by angling the upper arms slightly downward and turning the forearms up and in.
 
 		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Barycentrix coordinates are a coordinate system that describes any point as a weighted average of the vertices of a triangle. For any point, there is a weight associated with each vertex of the triangle, with the 3 weights adding to 1. This means that any point is a unique combination of the three vertices of the triangle, allowing for values to blend smoothly together. For example, if different vertices of a triangle are associated with different colors, then since the weights smoothly transition across the triangle, the colors on the triangle will transition smoothly between the colors based on the position on the triangle.
 
 		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			Pixel sampling is the process of determining what color from a texture map will be applied to a point on a triangle. We need to have mappings between the positions of the triangle and the texture map, which is defined by by the (u,v) texure coordinates associated with each vertex. To implement this, I first calculated the barycentric coordinates for each sample point to see the influence each vertex has on a particular point. The barycentric coordinates are used to interpolate the texture coordinates across the triangle. To determine what color needs to be sampled from the texture, nearest neighbor sampling will simply convert the (u,v) coordinates to the texture space, then round to the nearest integer to get the closest texel, which is used for the color. Bilinear sampling on the other hand, interpolates between the 4 nearest texels by calculating the fractional distaance to the texels and doing linear interpolations horizontally, then vertically. We can clearly see a situation in which bilinear sampling's smoother appearance outperforms nearest sampling when looking athte lines on the distorted maps, where nearest sampling shows significant banding at both 1 and 16 supersampling rates, whereas the bilinear sampling does a much better job of making the lines of latitude and longitude look continuous. There tends to be large differences in the two methods when textures are stretched or rotated and distorted because the hard edges of the nearest sampling method become more noticeable with larger texels and when continuous objects bend, while the smooth transitions of the bilinear method allow for these things to remain looking natural.
 
 		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			Level sampling gives multiple prefiltered versions of the same texture (mipmaps), and chooses which one is best for the viewing circumstances. This allows textures that are closer or further away to not look stretched or compressed. First, I meazure how quickly the texture coordinates change when moving one pixel in screen space to see how stretched or compressed a texture is. I then use the log of the max rate to find which mipmap level best matches the viewing conditions. Based on the sampling method, I then either blend the levels or use one level to get the best results. There are 3 sampling methods implemented: L_Zero, L_Nearest, and L_Linear. L_Nearest calculates the mipmap level by taking the derivatives or texture coordinates and rounding to the nearest integer levelit is reasonably fast while reducing aliasing when compared to L_Zero. L_Zero always uses the highest resolution texture, which is very fast, but also causes a lot of alias due to the viewing perspective. L_Linear is the slowest method, and takes the sae memoryas L_Nearest, which is higher than L_Zero, but it has the smooth transitions while zooming because it linearly interpolates between 2 adjacent levels.
 
 		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
