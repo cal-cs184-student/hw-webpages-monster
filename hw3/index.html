@@ -76,10 +76,67 @@
 		</div>
 		
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
+			<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bench.png" width="400px"/>
+				  <figcaption>Bench rendered with BVH implemented</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="beetle.png" width="400px"/>
+				  <figcaption>Shell of a VW beetle model rendered with BVH</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="dragon_screenshot_3-21_4-51-0.png" width="400px"/>
+				  <figcaption>Dragon rendered with BVH</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="cow.png" width="400px"/>
+				  <figcaption>cow rendered with BVH (0.14 seconds)</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+			My BVH construction algorithm uses a recursive spatial partitioning approach. At each step:
+				1. I compute the bounding box for all primitives in the current range.
+				2. If the number of primitives is less than or equal to the maximum leaf size, I create a leaf node. Otherwise, I need to split the primitives in two:
+					I find the axis with the largest extent (x, y, or z) to maximize the separation between the two child nodes.
+					For the splitting point, I use the median of the centroids along that axis. This ensures approximately equal numbers of primitives in each child node, which helps create a balanced tree.
+					I use std::nth_element to efficiently find the median and partition the primitives.
+				3. If the partitioning fails (all primitives end up on one side), I try other axes or simply split the primitives in half.
+				4, recursively build the left and right subtrees with the partitioned primitives.
+			For the cow model, my render time without using BVH took around 20.1 seconds, which then dropped to about 0.14 seconds once BVH was implemented. The performance improvement is more pronounced in scenes with more primitives, where the O(log n) traversal complexity of the BVH significantly outperforms the O(n) brute-force approach
+			
 		<h2>Part 3: Direct Illumination</h2>
 			My hemisphere sampling implementation creates a local coordinate system at the hit point with the normal as the Z-axis and o2w (object-to-world) and w2o (world-to-object) matrices convert between local and world coordinates. It then uniformly samples random directions over the hemisphere, only considering directions above the surface (wi_local.z > 0). For each sample direction, it casts a "shadow ray" to find what's visible, and if the ray hits an emissive object, we count it as a light source. Finally, for each hit on an emissive surface, we calculate the contribution. For importance sampling, I iterate through all lights in the scene rather than hoping random rays hit it. I generate samples on the light source with intensity, direction, distance, and the PDF. Then I createa a shadow ray with precise bounds and check if anything blocks the light. I then weight each sample by 1/PDF for Monte Carlo estimation and average multiple samples because it's an area light. Importance sampling produces significantly less noisy results than hemisphere sampling with the same number of samples because it focuses exclusively on directions that matter - those toward light sources. In the cornell box with a bunny, hemisphere sampling creates a characteristic "glow" around the light source due to its undirected sampling approach, while importance sampling produces cleaner shadows and more defined illumination with better noise characteristics. The noise reduction in soft shadows follows the Monte Carlo expected improvement of 1/√N, where N is the number of samples. The progression from 1 to 64 rays demonstrates this relationship clearly - each quadrupling of samples approximately halves the perceived noise. The most dramatic visual improvement occurs between 1 and 16 samples, while the jump from 16 to 64 samples provides refinement rather than transformation. This pattern illustrates the diminishing returns principle in Monte Carlo methods, where initial samples provide the greatest noise reduction benefit per computational cost.
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="dragon_64_32.png" width="400px"/>
+				  <figcaption>dragon with importance sampling</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="notcbbunny_64_32.png" width="400px"/>
+				  <figcaption>Bunny with importance sampling.</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart3fullrender.png" width="400px"/>
+				  <figcaption>Cornell bunny with importance sampling.</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunny_64_32.png" width="400px"/>
+				  <figcaption>Cornell bunny with hemisphere sampling</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>	
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
