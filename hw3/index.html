@@ -82,7 +82,27 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 4: Global Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			In my implementation of indirect lighting, I first determine if direct lighting should be included based on the accumulation setting. Then I check if we've reached the maximum ray depth, using russian roulette termination to efficiently handle arbitrarily long paths. I then sample a new direction based on the material's BSDF and create a new ray and trace it into the scene. Then I recursively compute illumination from the next bounce, before applying the rendering equation to combine all contributions. In the no accumulation renders of the second and third bounces, we see only the indirect lighting of the scene. For the second bounce, we see color bleeding from teh walls onto the bunny, soft shadows in areas that do no recieve direct light, and ambient occlusion in corners and crevices. In the third bounce we see colors blend through multiple surface interaction, light penetrate deeper into the corners, and caustic-like patterns fro light focused through mulitple reflections.Traditional rasterization cannot naturally model these indirect lighting effects because it only considers direct relationships between lights and surfaces, not considering paths with multiple bounces, so ambient occlusion must be approximated. When looking at multiple different sample rates, we see that the reduction in noise and improvement in light/shadow boundaries and gradients are not linear with the increase of the sample rate. W see a uch larger imporvement from 1 to 64 samples than from 64 to 1024 samples, while the render time continues to increase significantly with each step higher of samples. The accumlulated bouunce images give more and more realistic views of a scene, with all of the rays from each bounce adding up to make a realistic image, whereas the unacculumated images depict what each layer of light ray bounces is contributing to the image. Direct lighting creates hard boundaries between illuminated areas and shadows with no color bleeding. Indirect illumination only shows the color bleeding and soft lighting charateristics in a more uniformly lit environment.
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m100.png" width="400px"/>
+				  <figcaption>global illumination bunny</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="wallepart4rr.png" width="400px"/>
+				  <figcaption>global illumination walle</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="spherespart4rr.png" width="400px"/>
+				  <figcaption>global illumination spheres</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 		
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
@@ -171,6 +191,93 @@
 			  </tr>
 			</table>
 		</div>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m0.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 0</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m1.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 1</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m2.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m3.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 3</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m4.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4m100.png" width="400px"/>
+				  <figcaption>Bunny with russian roulette rendering max ray depth 100</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s1.png" width="400px"/>
+				  <figcaption>Bunny with 1 sample per pixel max ray depth 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s2.png" width="400px"/>
+				  <figcaption>Bunny with 2 samples per pixel max ray depth 4</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s4.png" width="400px"/>
+				  <figcaption>Bunny with 4 samples per pixel max ray depth 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s8.png" width="400px"/>
+				  <figcaption>Bunny with 8 samples per pixel max ray depth 4</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s16.png" width="400px"/>
+				  <figcaption>Bunny with 16 samples per pixel max ray depth 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s64.png" width="400px"/>
+				  <figcaption>Bunny with 64 samples per pixel max ray depth 4</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4s1024.png" width="400px"/>
+				  <figcaption>Bunny with 1024 samples per pixel max ray depth 4</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
 
 
 
