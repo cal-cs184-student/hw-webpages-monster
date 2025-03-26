@@ -83,7 +83,98 @@
 
 		<h2>Part 4: Global Illumination</h2>
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="spherespart4indirect.png" width="400px"/>
+				  <figcaption>Spheres with only indirect lighting</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spherespart4direct.png" width="400px"/>
+				  <figcaption>Spheres with only direct lighting</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>	
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc0.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 0 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc1.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 1 max ray depth</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc2.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 2 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc3.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 3 max ray depth</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc4.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 4 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4acc5.png" width="400px"/>
+				  <figcaption>Cornell bunny with accumulation, 5 max ray depth</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc0.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 0 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc1.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 1 max ray depth</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc2.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 2 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc3.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 3 max ray depth</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc4.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 4 max ray depth</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnypart4noacc5.png" width="400px"/>
+				  <figcaption>Cornell bunny without accumulation, 5 max ray depth</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
+
+
+			
 		<h2>Part 5: Adaptive Sampling</h2>
 			Adaptive sampling is a technique to make renders faster while maintaining image quality where instead of using a fixed number of samples per pixel, adaptive sampling uses more samples in complex regions (areas with high variance) and fewer samples in simpler regions (like flat surfaces with consistent color). By monitoring each pixel's convergence individually, we stop sampling once a pixel has "good enough" quality, saving computation while maintaining image quality. In my implementation, I process samples in batches to avoid checking convergence after every single sample while tracking statistics that evaluate convergence for each sample. After each batch, I check if the pixel has converged using a statstical confidence interval. When this uncertainty is small enough relative to the pixel's brightness (with adjustment for very dark pixels), we can stop sampling. Finally, I compute the final pixel color and record how many samples were used.
 		<div style="display: flex; flex-direction: column; align-items: center;">
