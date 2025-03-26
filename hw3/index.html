@@ -79,7 +79,55 @@
 		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 
 		<h2>Part 3: Direct Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			My hemisphere sampling implementation creates a local coordinate system at the hit point with the normal as the Z-axis and o2w (object-to-world) and w2o (world-to-object) matrices convert between local and world coordinates. It then uniformly samples random directions over the hemisphere, only considering directions above the surface (wi_local.z > 0). For each sample direction, it casts a "shadow ray" to find what's visible, and if the ray hits an emissive object, we count it as a light source. Finally, for each hit on an emissive surface, we calculate the contribution. For importance sampling, I iterate through all lights in the scene rather than hoping random rays hit it. I generate samples on the light source with intensity, direction, distance, and the PDF. Then I createa a shadow ray with precise bounds and check if anything blocks the light. I then weight each sample by 1/PDF for Monte Carlo estimation and average multiple samples because it's an area light. Importance sampling produces significantly less noisy results than hemisphere sampling with the same number of samples because it focuses exclusively on directions that matter - those toward light sources. In the cornell box with a bunny, hemisphere sampling creates a characteristic "glow" around the light source due to its undirected sampling approach, while importance sampling produces cleaner shadows and more defined illumination with better noise characteristics. The noise reduction in soft shadows follows the Monte Carlo expected improvement of 1/√N, where N is the number of samples. The progression from 1 to 64 rays demonstrates this relationship clearly - each quadrupling of samples approximately halves the perceived noise. The most dramatic visual improvement occurs between 1 and 16 samples, while the jump from 16 to 64 samples provides refinement rather than transformation. This pattern illustrates the diminishing returns principle in Monte Carlo methods, where initial samples provide the greatest noise reduction benefit per computational cost.
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnyimp-l1.png" width="400px"/>
+				  <figcaption>Bunny with lighting from importance sampling 1 light ray</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnyimp-l4.png" width="400px"/>
+				  <figcaption>Bunny with lighting from importance sampling 4 light rays</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnyimp-l16.png" width="400px"/>
+				  <figcaption>Bunny with lighting from importance sampling 16 light rays</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnyimp-l64.png" width="400px"/>
+				  <figcaption>Bunny with lighting from importance sampling 64 light rays</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnynohem-l1.png" width="400px"/>
+				  <figcaption>Bunny with lighting from hemisphere sampling 1 light ray</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnynohem-l4.png" width="400px"/>
+				  <figcaption>Bunny with lighting from hemisphere sampling 4 light rays</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunnynohem-l16.png" width="400px"/>
+				  <figcaption>Bunny with lighting from hemisphere sampling 16 light rays</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunnynohem-l64.png" width="400px"/>
+				  <figcaption>Bunny with lighting from hemisphere sampling 64 light rays</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 4: Global Illumination</h2>
 			In my implementation of indirect lighting, I first determine if direct lighting should be included based on the accumulation setting. Then I check if we've reached the maximum ray depth, using russian roulette termination to efficiently handle arbitrarily long paths. I then sample a new direction based on the material's BSDF and create a new ray and trace it into the scene. Then I recursively compute illumination from the next bounce, before applying the rendering equation to combine all contributions. In the no accumulation renders of the second and third bounces, we see only the indirect lighting of the scene. For the second bounce, we see color bleeding from teh walls onto the bunny, soft shadows in areas that do no recieve direct light, and ambient occlusion in corners and crevices. In the third bounce we see colors blend through multiple surface interaction, light penetrate deeper into the corners, and caustic-like patterns fro light focused through mulitple reflections.Traditional rasterization cannot naturally model these indirect lighting effects because it only considers direct relationships between lights and surfaces, not considering paths with multiple bounces, so ambient occlusion must be approximated. When looking at multiple different sample rates, we see that the reduction in noise and improvement in light/shadow boundaries and gradients are not linear with the increase of the sample rate. W see a uch larger imporvement from 1 to 64 samples than from 64 to 1024 samples, while the render time continues to increase significantly with each step higher of samples. The accumlulated bouunce images give more and more realistic views of a scene, with all of the rays from each bounce adding up to make a realistic image, whereas the unacculumated images depict what each layer of light ray bounces is contributing to the image. Direct lighting creates hard boundaries between illuminated areas and shadows with no color bleeding. Indirect illumination only shows the color bleeding and soft lighting charateristics in a more uniformly lit environment.
