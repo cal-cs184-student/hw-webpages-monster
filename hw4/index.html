@@ -48,11 +48,9 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+			In this homework I implemented a system for simulating a cloth using a mesh of point masses and springs and applying force equations to that mesh. In addition, I also implemented shaders so the cloth simulated could have any desired texutre or lighting without take a long time to render each frame. The cloth was also implemented to collide with other objects and itself as would be expected from a cloth in real life.
 
 		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-			
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
@@ -75,6 +73,7 @@
 		</div>
 
 		<h2>Part 2: Simulation via numerical integration</h2>
+			When experimenting with the damping parameter, I observed that lower damping results in the cloth rippling and vibrating much more as a result of the force not dissipating over time. WIth high damping the cloth ends up not rippling at all and remaining completely sooth because the force is completely dissipated as soon as the cloth experiences any changes across its surface. The cloth proceeds to its final resting position immediately. For changing the spring constant and density of the cloth, I saw the same effect for a low k was I did for a high density, and the same behavior for a high k as was exhibited by a low density. For high k and low density, the cloth appeared somewhat stiff and didn't droop very much , whereas with the low k or high density, the cloth was much more stretched. This is because with a low spring constant the massses can stretch the springs out more due to the lower stiffness, and with a higher desnity, the springs are more stretched due to the increased force put on the springs by the heavier point masses. A higher spring constant will make the cloth stiffer as the masses can't stretch the springs as far, and low density means less force will be exerted on the springs.
 
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
@@ -125,7 +124,22 @@
 			</table>
 		</div>
 		<h2>Part 3: Handling collisions with other objects</h2>
-
+		For sphere collisions, I implemented the following approach:
+			1.For each point mass, I calculate the vector from the sphere center to the point mass position, and check if its length is less than the sphere radius.
+			2.When a collision is detected, I:
+				Calculate the tangent point on the sphere's surface.
+				Create this point by extending a ray from the sphere center in the direction of the point mass, with a length equal to the sphere radius.
+				Compute a correction vector from the last valid position to this tangent point.
+				Apply this correction scaled by a friction factor to determine the new position.
+			To prevent fast-moving points from tunneling through the sphere, I check if the line segment between the previous and current position intersects the sphere.
+		For plane collisions, the approach focuses on detecting crossing events:
+			1. I calculate the signed distance from both the current and previous positions to the plane. If these distances have opposite signs (or the current position is on the wrong side), a collision has occurred.
+			2. When a collision is detected, I:
+				Calculate the exact intersection point where the point's trajectory crossed the plane.
+				Place the point slightly offset from this intersection on the correct side of the plane.
+				Apply friction by scaling the correction vector, simulating the effect of the point sliding along the plane.
+			To handle edge cases, I added special treatment for points moving almost parallel to the plane and for points already on the wrong side.
+		For different spring constants, we see similar behavior as with part 2. A low spring constant such as k = 500 will lead to the cloth stretching significantly under its ovn weight and closely conforming to the shape of the sphere due to ease with with the point masses can stretch out the springs and reshape the cloth. At k = 5000 we see more realistic folds and creases as the springs stretch out less and provide more resistance to deforming under the weight of the point masses. At k = 50000, the springs are very stiff, so the cloth doesn't deform much at all around the sphere.
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
@@ -151,6 +165,22 @@
 			</table>
 		</div>
 		<h2>Part 4: Handling self-collisions</h2>
+		My implementation of cloth self-collision uses spatial hashing to efficiently detect and resolve collisions between different parts of the cloth. This approach significantly reduces the computational complexity from O(n²) to approximately O(n) in the average case.
+		Spatial Hashing:
+		1. I partitioned the 3D space into boxes with dimensions based on the cloth properties. The dimensions are empirically chosen to balance efficiency and accuracy of collision detection.
+		2. I implemented a hash function that maps 3D positions to unique float identifiers. This creates a unique identifier for each 3D box, allowing quick lookup of all point masses within a given volume.
+		3. During each simulation step, I build a map that groups point masses by their spatial location. 
+		Collision Detection:
+		1. For each point mass, I identify potential collision candidates within the same spatial bucket.
+		2. For each candidate, I check if the distance is less than twice the cloth thickness.
+		3. When a collision is detected, I calculate a correction vector to push the point masses apart.
+		4. I apply the averaged correction, scaled by the simulation steps to prevent instability.
+		Optimizations:
+			Skipping Pinned Points: Pinned points don't participate in self-collisions, saving computation.
+			Early Exit: If no candidates are found in a spatial bucket, the function returns immediately.
+			Avoiding Self-Collision: Explicit check to prevent a point mass from colliding with itself.
+			Scaled Corrections: Dividing by simulation_steps ensures corrections don't cause instability over multiple iterations.
+		Once again, we see a high density and low spring constant act similarly, and a high spring constant and low density act similarly. For the high density and/or low k, we see teh cltoh deform easily, folding over itself many time in a compact pile, as the springs can't resist the force of the masses very much, so the cloth is easily reshaped and doesn't have to spread out across the surface very much. For the low density and/or high spring constant, the decreased force/ increased resistance leads to the cloth being in a more spread out pile with less creases, as the springs don't allow the masses to change the shape of the cloth.
 
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
@@ -197,7 +227,16 @@
 			</table>
 		</div>
 		<h2>Part 5: Shaders</h2>
+		A shader program is a specialized piece of code that runs directly on the GPU to control how objects are rendered. Unlike general-purpose code that runs on the CPU, shaders execute in parallel across thousands of execution units, making them extremely efficient for graphics operations where the same calculation needs to be applied to many different points.
+		Vertex and fragment shaders work together in a pipeline, each handling a specific part of the rendering process. Vertex Shaders operate on individual vertices of 3D models. They transform vertex positions from 3D model space to 2D screen space and calculate and pass along attributes like position, normal direction, and texture coordinates. They run once per vertex in the model.
+		Fragment Shaders operate on individual fragments. They determine the final color of each pixel and apply lighting calculations, textures, and visual effects. They run once for every pixel that will be drawn on screen.
 
+		The Blinn-Phong model is a lighting calculation technique that creates realistic-looking surfaces by combining three lighting components:
+			Ambient Lighting: Represents indirect light that bounces around the environment. It's a simple constant that ensures objects are never completely black in shadow areas.
+			Diffuse Lighting: Represents direct light reflecting off rough surfaces in all directions. It depends on the angle between the surface normal and the light direction - surfaces facing directly toward a light are brighter than surfaces at an angle.
+			Specular Highlighting: Simulates the bright highlights on shiny objects. It's based on how closely the viewing angle aligns with the perfect reflection angle, but uses a "halfway vector" between the view and light directions for efficiency.
+		The model combines these components with material properties to create a wide range of material appearances from matte to glossy.
+		Bump Mapping only modifies the surface normals used in lighting calculations without changing the actual geometry, creating shadows through lighting alone, while Displacement Mapping creates actual geometric detail by moving vertices, fundamentally changing the geometry of the object to create the desired lighting. Bump mapping is convincing only form certain angles while appearing flat from others. Displacement mapping is accurate from all angles, but requires higher mesh resolution to capture fienr details. We see this difference when varying the coarseness of the sphere's meshes. The bump mapping doesn't change much at all when lowering the resolution of the sphere's mesh, but the displacement mapping creates a chunky and deformed sphere that is significantly different in appearance to that of the high resolution sphere.
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
